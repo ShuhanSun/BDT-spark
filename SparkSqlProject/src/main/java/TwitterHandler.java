@@ -46,7 +46,7 @@ public class TwitterHandler {
     public static void main(String[] args) {
         TwitterHandler twitterHandler = new TwitterHandler();
         twitterHandler.createTable();
-        twitterHandler.loadData(TWITTER_JSON_PATH_100);
+        twitterHandler.loadDataLocal(TWITTER_JSON_PATH_100);
         Row[] results = twitterHandler.selectAll();
 
         System.out.println(results.length);
@@ -100,6 +100,10 @@ public class TwitterHandler {
     }
 
     public void loadData(String path) {
+        hsqlContext.sql("LOAD DATA INPATH '" + path + "' INTO TABLE twitter");
+    }
+
+    public void loadDataLocal(String path) {
         hsqlContext.sql("LOAD DATA LOCAL INPATH '" + path + "' INTO TABLE twitter");
     }
 }
