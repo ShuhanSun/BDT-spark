@@ -48,23 +48,28 @@ import org.apache.spark.api.java.function.FlatMapFunction;
 //import org.apache.spark.sql.streaming.StreamingQuery;
 
 
+
+
 import java.util.Arrays;
 import java.util.Iterator;
 
 public class KafkaToStreaming {
+	
+	private static StringBuffer cache = new StringBuffer();
+	
 	static class KafkaStreamSeqOutputFormat extends
 			SequenceFileOutputFormat<Text, BytesWritable> {
 
 	}
 
 	public static void main(String[] args) {
-//		 try {
-//			 KafkaToStreaming.createAppendHDFS("/user/cloudera/output/part-00000.txt","hello world.");
-//		 } catch (IOException e) {
-//		 // TODO Auto-generated catch block
-//		 e.printStackTrace();
-//		 }
-		//KafkaToStreaming.append();
+		// try {
+		// KafkaToStreaming.createAppendHDFS("/user/cloudera/output/part-00000.txt","hello world.");
+		// } catch (IOException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+		// KafkaToStreaming.append();
 		KafkaToStreaming.test();
 	}
 
@@ -88,15 +93,24 @@ public class KafkaToStreaming {
 		directKafkaStream.foreachRDD(rdd -> {
 			System.out.println("--- New RDD with " + rdd.partitions().size()
 					+ " partitions and " + rdd.count() + " records");
-			rdd.foreach(record -> {
-				String one = record._2;
-				System.out.println(one);
-				//createAppendHDFS("/user/cloudera/output/part-00000.txt",one);
-			});
-			
-		});
+			// rdd.saveAsHadoopFile("a", Text.class,BytesWritable.class,
+			// KafkaStreamSeqOutputFormat.class);
+				rdd.coalesce(1, true);
+				rdd.repartition(1);
+				rdd.foreach(record -> {
+					String one = record._2;
+					Func(true,one);
+					System.out.println(one);
 
-		// directKafkaStream.saveAsHadoopFiles("twitter", "seq", Text.class,BytesWritable.class, KafkaStreamSeqOutputFormat.class);
+					// createAppendHDFS("/user/cloudera/output/part-00000.txt",one);
+				});
+
+			});
+
+		// directKafkaStream.transform(transformFunc)
+		// directKafkaStream.saveAsHadoopFiles("twitter", "seq",
+		// Text.class,BytesWritable.class, KafkaStreamSeqOutputFormat.class);
+
 //		JavaDStream<String> valueDStream = directKafkaStream
 //				.map(new Function<Tuple2<String, String>, String>() {
 //					/**
@@ -106,14 +120,64 @@ public class KafkaToStreaming {
 //
 //					public String call(Tuple2<String, String> v1)
 //							throws Exception {
+//						Func(true,v1._2);
 //						return v1._2();
 //					}
 //				});
-//		valueDStream.count().print();
+		//String suffix = "seq";
+		// valueDStream.dstream().repartition(1).saveAsTextFiles("hdfs://localhost/user/cloudera/output/",
+		// suffix );
 
+		// valueDStream.count().print();
+		(new Thread(merge)).start();
 		ssc.start();
 		ssc.awaitTermination();
 	}
+
+	public static synchronized String Func(boolean isappend, String appendstring){
+		if (isappend){
+			KafkaToStreaming.cache.append(appendstring);
+		}else{
+
+			String tmp = cache.toString();
+			cache = new StringBuffer();
+			return tmp;
+		}
+		return "";
+	}
+	
+	static Runnable merge = new Runnable() {
+		String filename = "/user/cloudera/output/part-"+String.valueOf(System.currentTimeMillis())+".txt";
+		@Override
+		public void run() {
+			while (true){
+
+				try {
+					String content = Func(false,"");
+					
+					if (content.length() > 1024 * 1024){
+						filename = "/user/cloudera/output/part-"+String.valueOf(System.currentTimeMillis())+".txt";
+					}
+					if (content.length() > 1){
+						filename = "/user/cloudera/output/part-"+String.valueOf(System.currentTimeMillis())+".txt";
+						KafkaToStreaming.createAppendHDFS(
+								filename, content);
+					}
+						
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				try {
+					Thread.sleep(10000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+
+	};
 
 	/*
 	 * public static void sparkStreaming(){
@@ -130,58 +194,60 @@ public class KafkaToStreaming {
 	 * .option("path", "/user/cloudera/output") .start(); }
 	 */
 
-//	public static void append() {
-//		String hdfs_path = "hdfs://localhost/user/cloudera/output/part-00000";
-//		Configuration conf = new Configuration();
-//		conf.setBoolean("dfs.support.append", true);
-//
-//		String inpath = "/home/cloudera/bdtproject/twitters.txt";
-//		FileSystem fs = null;
-//		try {
-//			fs = FileSystem.get(URI.create(hdfs_path), conf);
-//
-//			InputStream in = new BufferedInputStream(
-//					new FileInputStream(inpath));
-//			OutputStream out = fs.append(new Path(hdfs_path));
-//			out.write("appending into file. \n".getBytes());
-//			out.write("appending into file. \n".getBytes());
-//			out.write("appending into file. \n".getBytes());
-//
-//			out.flush();
-//			Thread.sleep(300);
-//			fs.close();
-//			// IOUtils.copyBytes(in, out, 4096, true);
-//		} catch (IOException | InterruptedException e) {
-//			e.printStackTrace();
-//		}
-//	}
+	// public static void append() {
+	// String hdfs_path = "hdfs://localhost/user/cloudera/output/part-00000";
+	// Configuration conf = new Configuration();
+	// conf.setBoolean("dfs.support.append", true);
+	//
+	// String inpath = "/home/cloudera/bdtproject/twitters.txt";
+	// FileSystem fs = null;
+	// try {
+	// fs = FileSystem.get(URI.create(hdfs_path), conf);
+	//
+	// InputStream in = new BufferedInputStream(
+	// new FileInputStream(inpath));
+	// OutputStream out = fs.append(new Path(hdfs_path));
+	// out.write("appending into file. \n".getBytes());
+	// out.write("appending into file. \n".getBytes());
+	// out.write("appending into file. \n".getBytes());
+	//
+	// out.flush();
+	// Thread.sleep(300);
+	// fs.close();
+	// // IOUtils.copyBytes(in, out, 4096, true);
+	// } catch (IOException | InterruptedException e) {
+	// e.printStackTrace();
+	// }
+	// }
 
-	public static void createAppendHDFS(String filePath, String content) throws IOException {
+	public static void createAppendHDFS(String filePath, String content)
+			throws IOException {
 		Configuration hadoopConfig = new Configuration();
 		hadoopConfig.set("fs.defaultFS", "hdfs://localhost/");
 		hadoopConfig.setBoolean("dfs.support.append", true);
 
 		FileSystem fileSystem = FileSystem.get(hadoopConfig);
-		//String filePath = "/user/cloudera/output/part-00000.txt"; // hdfs://localhost/user/cloudera/output
+		// String filePath = "/user/cloudera/output/part-00000.txt"; //
+		// hdfs://localhost/user/cloudera/output
 		Path hdfsPath = new Path(filePath);
 		// fShell.setrepr((short) 1, filePath);
 		FSDataOutputStream fileOutputStream = null;
 		try {
 			if (fileSystem.exists(hdfsPath)) {
 				fileOutputStream = fileSystem.append(hdfsPath);
-				//fileOutputStream.writeBytes("appending into file. \n");
-				fileOutputStream.writeBytes(content+"\n");
+				// fileOutputStream.writeBytes("appending into file. \n");
+				fileOutputStream.writeBytes(content + "\n");
 			} else {
 				fileOutputStream = fileSystem.create(hdfsPath);
-				//fileOutputStream.writeBytes("creating and writing into file\n");
-				fileOutputStream.writeBytes(content+"\n");
+				// fileOutputStream.writeBytes("creating and writing into file\n");
+				fileOutputStream.writeBytes(content + "\n");
 			}
 		} finally {
-			if (fileSystem != null) {
-				fileSystem.close();
-			}
 			if (fileOutputStream != null) {
 				fileOutputStream.close();
+			}
+			if (fileSystem != null) {
+				fileSystem.close();
 			}
 		}
 	}
