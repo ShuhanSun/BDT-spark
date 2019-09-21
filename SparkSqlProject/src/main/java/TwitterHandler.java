@@ -3,6 +3,9 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.hive.HiveContext;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 /**
  * Twitter Handler
  *
@@ -13,7 +16,8 @@ import org.apache.spark.sql.hive.HiveContext;
  */
 public class TwitterHandler {
 
-    private static final String TWITTER_JSON_PATH_100 = "src/main/resources/twitter100.txt";
+    private static final String TWITTER_TXT_PATH_100 = "src/main/resources/twitter100.txt";
+    private static final String TWITTER_JSON_PATH_100 = "src/main/resources/twitter100.json";
 
     private static SparkConf conf;
     private static JavaSparkContext sc;
@@ -43,10 +47,11 @@ public class TwitterHandler {
      *
      * @param args
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ParseException {
         TwitterHandler twitterHandler = new TwitterHandler();
-        twitterHandler.createTable();
-        twitterHandler.loadDataLocal(TWITTER_JSON_PATH_100);
+
+//        twitterHandler.createTable();
+//        twitterHandler.loadDataLocal(TWITTER_TXT_PATH_100);
         Row[] results = twitterHandler.selectAll();
 
         System.out.println(results.length);
@@ -54,10 +59,13 @@ public class TwitterHandler {
             System.out.println(row.toString());
         }
         // 1. How many twitter in different time slot?
-//        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy");
-//        String dateStart = "Thu Apr 06 15:24:15 +0000 2017";
-//        String dateEnd = "Thu Apr 08 15:24:15 +0000 2017";
-//        Row[] results1 = hsqlContext.sql("SELECT id_str, created_at, text FROM twitter  WHERE created_at >= '" + dateStart + "' AND created_at <= '" + dateEnd + "'").collect();
+        String dateStart = "Thu Sep 19 02:36:10 +0000 2019";
+        String dateEnd = "Thu Sep 19 19:47:28 +0000 2019";
+        long timeStart =Utils.dateString2long(dateStart);
+        long timeEnd = Utils.dateString2long(dateEnd);
+        System.out.println(timeStart + ", "+timeEnd);
+        Row[] results1 = hsqlContext.sql("SELECT count(*) FROM twitter  WHERE created_at >= '" + timeStart + "' AND created_at <= '" + timeEnd + "'").collect();
+        System.out.println(results1[0]);
 
         //2. How many average word count of twitter in different location?
 
@@ -66,13 +74,15 @@ public class TwitterHandler {
     }
 
     public Row[] selectAll() {
-        return hsqlContext.sql("SELECT id_str, user_id, user_name, user_location, created_at, text FROM twitter ").collect();
+        return hsqlContext.sql("SELECT created_at, text FROM twitter ").collect();
+//        return hsqlContext.sql("SELECT id_str, created_at, favorite_count, user_id, user_name, user_location, text FROM twitter ").collect();
     }
 
     public void createTable() {
         hsqlContext.sql("CREATE TABLE IF NOT EXISTS twitter " +
                 "(id_str String, " +
-                "created_at String, " +
+                "created_at BIGINT, " +
+                "favorite_count INT, " +
                 "user_id String, " +
                 "user_name String, " +
                 "user_location String, " +
@@ -90,7 +100,8 @@ public class TwitterHandler {
     public void createExternalTable(String location) {
         hsqlContext.sql("CREATE EXTERNAL TABLE IF NOT EXISTS twitter LOCATION " + location +
                 "(id_str String, " +
-                "created_at String, " +
+                "created_at BIGINT, " +
+                "favorite_count INT, " +
                 "user_id String, " +
                 "user_name String, " +
                 "user_location String, " +

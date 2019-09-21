@@ -37,7 +37,7 @@ target/
 *.iml
 *.class
 out/
-
+./SparkSqlProject/metastore_db
 
 .factorypath
 
