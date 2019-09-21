@@ -12,7 +12,8 @@ def tweetLearning(keyword,count,result_type):
     credentials['CONSUMER_KEY'] = "pyKBZeHhRb9w006Cv4Ituqi7E"
     credentials['CONSUMER_SECRET'] = "DwUyJXTzPF4FexqztrXKu6ij7tf9GHnH9EiGGh0FGtdgAejjux"
     credentials['ACCESS_TOKEN'] = "53697152-Nvdb7vmwGzPUI65duv6fkkA5ejvC8JSt0FtZncz3J"
-    credentials['ACCESS_SECRET'] = "AlQ0boi3ePIY3muIH6DHylCidVyMkEtI56hI9cin2C7wx"
+    #credentials['ACCESS_SECRET'] = "AlQ0boi3ePIY3muIH6DHylCidVyMkEtI56hI9cin2C7wx"
+    credentials['ACCESS_SECRET'] = "EEQDKBqGcuuUjQRs6sc4Fa6WScV67kmWblcMd2IGCEnOP"
     python_tweets = Twython(credentials['CONSUMER_KEY'], credentials['CONSUMER_SECRET'])
 
     # Create our query

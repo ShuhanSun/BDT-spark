@@ -79,9 +79,10 @@ public class KafkaToStreaming {
 				.setAppName("kafka-sandbox")
 				.setMaster(
 				 "local[*]")
-				//		"spark://192.168.243.133:7077")
-				.setJars(
-						new String[] { "/home/cloudera/bdtproject/BDT-spark/TwitterDS/spark-streaming-kafka-0-10_2.11/target/spark-streaming-kafka-0-10_2.11-0.0.1-SNAPSHOT.jar" });
+				//	"spark://127.0.0.1:33020")
+				//.setJars(
+				//		new String[] { "/home/cloudera/bdtproject/BDT-spark/TwitterDS/spark-streaming-kafka-0-10_2.11/target/spark-streaming-kafka-0-10_2.11-0.0.1-SNAPSHOT.jar" })
+						;
 		JavaSparkContext sc = new JavaSparkContext(conf);
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(
 				30000));
@@ -104,7 +105,7 @@ public class KafkaToStreaming {
 			// rdd.saveAsHadoopFile("a", Text.class,BytesWritable.class,KafkaStreamSeqOutputFormat.class);
 			// rdd.coalesce(1, true);
 			// rdd.repartition(1);
-
+				
 				 rdd.foreach(record -> {
 				 String one = record._2;
 				 Func(true,one,0);
@@ -171,7 +172,7 @@ public class KafkaToStreaming {
 			while (true) {
 				
 				try {
-					String content = Func(false, "",128 * 1024);
+					String content = Func(false, "",8 * 1024);
 
 					// if (content.length() > 1024 * 1024){
 					// filename =
