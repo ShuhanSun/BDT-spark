@@ -3,6 +3,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.DataFrame;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.SaveMode;
 import org.apache.spark.sql.hive.HiveContext;
 
 /**
@@ -62,38 +63,57 @@ public class TwitterHandler {
             case "loadData":
                 twitterHandler.loadData(args[1]);
             case "selectAll":
-                DataFrame dataFrame = twitterHandler.selectAll();
-                dataFrame.show();
-                System.out.println(dataFrame.count());
+                selectAll(args[1], twitterHandler);
                 return;
             case "countByTime":
-//                    String dateStart = "Thu Sep 19 02:36:10 +0000 2019";
-//                    String dateEnd = "Thu Sep 19 19:47:28 +0000 2019";
-                long timeStart = Utils.dateString2long(args[1]);
-                long timeEnd = Utils.dateString2long(args[2]);
-                long count = hsqlContext.sql("SELECT count(*) FROM twitter  WHERE created_at >= '" + timeStart + "' AND created_at <= '" + timeEnd + "'").count();
-                System.out.println(count);
+                countByTime(args);
                 return;
             case "countByTime2":
                 // 1. How many twitter in different time slot?
-                DataFrame dataFrame2 = twitterHandler.selectAll();
-                DataFrame dfBetween = dataFrame2.filter(new Column("created_at").between(Utils.dateString2long(args[1]), Utils.dateString2long(args[2])));
-                dfBetween.show();
-                dfBetween.write().save(args[3]);
+                countByTime2(args, twitterHandler);
                 return;
             case "averageWord":
                 //2. How many average word count of twitter in different location?
-                Row[] results2 = hsqlContext.sql("SELECT user_location, avg(t.len) FROM (SELECT user_location, length(text) AS len FROM twitter) AS t GROUP BY user_location").collect();
-                for (Row row : results2) {
-                    System.out.println(row);
-                }
+                averageWord(args[1]);
                 return;
             case "maxTwittes":
                 //3. What’s the count of max twitters of one user and what’s his/her name?
-                DataFrame df3 = hsqlContext.sql("SELECT user_name, COUNT(*) cnt FROM twitter GROUP BY user_name ORDER BY cnt LIMIT 1");
-                df3.show();
+                maxTwittes(args[1]);
                 return;
         }
+    }
+
+    private static void maxTwittes(String arg) {
+        DataFrame df3 = hsqlContext.sql("SELECT user_name, COUNT(*) cnt FROM twitter GROUP BY user_name ORDER BY cnt");
+        df3.show();
+        df3.write().mode(SaveMode.Overwrite).format("json").save(arg);
+    }
+
+    private static void averageWord(String arg) {
+        DataFrame averageWord = hsqlContext.sql("SELECT user_location, avg(t.len) FROM (SELECT user_location, length(text) AS len FROM twitter) AS t GROUP BY user_location");
+        averageWord.show();
+        averageWord.write().mode(SaveMode.Overwrite).format("json").save(arg);
+    }
+
+    private static void countByTime2(String[] args, TwitterHandler twitterHandler) {
+        DataFrame dataFrame2 = twitterHandler.selectAll();
+        DataFrame dfBetween = dataFrame2.filter(new Column("created_at").between(Utils.dateString2long(args[1]), Utils.dateString2long(args[2])));
+        dfBetween.show();
+        dfBetween.write().mode(SaveMode.Overwrite).format("json").save(args[3]);
+    }
+
+    private static void countByTime(String[] args) {
+        long timeStart = Utils.dateString2long(args[1]);
+        long timeEnd = Utils.dateString2long(args[2]);
+        DataFrame countByTime = hsqlContext.sql("SELECT count(*) FROM twitter  WHERE created_at >= '" + timeStart + "' AND created_at <= '" + timeEnd + "'");
+        countByTime.write().mode(SaveMode.Overwrite).format("json").save(args[3]);
+    }
+
+    private static void selectAll(String arg, TwitterHandler twitterHandler) {
+        DataFrame dataFrame = twitterHandler.selectAll();
+        dataFrame.show();
+        dataFrame.write().mode(SaveMode.Overwrite).format("json").save(arg);
+        System.out.println(dataFrame.count());
     }
 
     public DataFrame selectAll() {
