@@ -20,23 +20,29 @@
         </plugins>
     </build>
     <packaging>jar</packaging>
-
+    <repositories>
+        <repository>
+            <id>my-repo1</id>
+            <name>cloudera</name>
+            <url> https://repository.cloudera.com/artifactory/cloudera-repos/</url>
+        </repository>
+    </repositories>
     <dependencies>
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_2.10</artifactId>
-            <version>1.6.0</version>
+            <version>1.6.0-cdh5.16.2</version>
         </dependency>
         <dependency> <!-- Spark dependency -->
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-sql_2.10</artifactId>
-            <version>1.6.0</version>
+            <version>1.6.0-cdh5.16.2</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.spark/spark-hive -->
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-hive_2.10</artifactId>
-            <version>1.6.0</version>
+            <version>1.6.0-cdh5.16.2</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
