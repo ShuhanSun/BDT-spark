@@ -1,10 +1,11 @@
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.sql.Column;
+import org.apache.spark.sql.DataFrame;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.hive.HiveContext;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
 /**
  * Twitter Handler
@@ -50,31 +51,39 @@ public class TwitterHandler {
     public static void main(String[] args) throws ParseException {
         TwitterHandler twitterHandler = new TwitterHandler();
 
-//        twitterHandler.createTable();
+        twitterHandler.createTable();
 //        twitterHandler.loadDataLocal(TWITTER_TXT_PATH_100);
-        Row[] results = twitterHandler.selectAll();
+        DataFrame dataFrame = twitterHandler.selectAll();
+        dataFrame.show();
+        System.out.println(dataFrame.count());
 
-        System.out.println(results.length);
-        for (Row row : results) {
-            System.out.println(row.toString());
-        }
+
         // 1. How many twitter in different time slot?
         String dateStart = "Thu Sep 19 02:36:10 +0000 2019";
         String dateEnd = "Thu Sep 19 19:47:28 +0000 2019";
         long timeStart =Utils.dateString2long(dateStart);
         long timeEnd = Utils.dateString2long(dateEnd);
-        System.out.println(timeStart + ", "+timeEnd);
-        Row[] results1 = hsqlContext.sql("SELECT count(*) FROM twitter  WHERE created_at >= '" + timeStart + "' AND created_at <= '" + timeEnd + "'").collect();
-        System.out.println(results1[0]);
+        DataFrame dfBetween = dataFrame.filter(new Column("created_at").between(timeStart, timeEnd));
+        dfBetween.show();
+        System.out.println(dfBetween.count());
+
+        long count = hsqlContext.sql("SELECT count(*) FROM twitter  WHERE created_at >= '" + timeStart + "' AND created_at <= '" + timeEnd + "'").count();
+        System.out.println(count);
+
 
         //2. How many average word count of twitter in different location?
-
+        Row[] results2 = hsqlContext.sql("SELECT user_location, avg(t.len) FROM (SELECT user_location, length(text) AS len FROM twitter) AS t GROUP BY user_location").collect();
+        for (Row row : results2) {
+            System.out.println(row);
+        }
 
         //3. What’s the count of max twitters of one user and what’s his/her name?
+        DataFrame df3 = hsqlContext.sql("SELECT user_name, COUNT(*) cnt FROM twitter GROUP BY user_name ORDER BY cnt LIMIT 1");
+        df3.show();
     }
 
-    public Row[] selectAll() {
-        return hsqlContext.sql("SELECT created_at, text FROM twitter ").collect();
+    public DataFrame selectAll() {
+        return hsqlContext.sql("SELECT * FROM twitter ");
 //        return hsqlContext.sql("SELECT id_str, created_at, favorite_count, user_id, user_name, user_location, text FROM twitter ").collect();
     }
 
