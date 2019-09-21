@@ -10,7 +10,7 @@ spark-submit \
   --executor-memory 20G \
   --total-executor-cores 100 \
 ./spark-project-1.0-SNAPSHOT.jar \
-  selectAll
+  selectAll /user/cloudera/spark-sql-output/selectAll
 
 
 # /Users/sunshuhan/Documents/mum/course/BDT/BDT-spark/SparkSqlProject/target/spark-project-1.0-SNAPSHOT.jar \

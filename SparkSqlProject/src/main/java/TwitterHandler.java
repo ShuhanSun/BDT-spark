@@ -84,35 +84,35 @@ public class TwitterHandler {
     }
 
     private static void maxTwittes(String arg) {
-        DataFrame df3 = hsqlContext.sql("SELECT user_name, COUNT(*) cnt FROM twitter GROUP BY user_name ORDER BY cnt LIMIT 1");
+        DataFrame df3 = hsqlContext.sql("SELECT user_name, COUNT(*) cnt FROM twitter GROUP BY user_name ORDER BY cnt");
         df3.show();
-        df3.write().mode(SaveMode.Overwrite).save(arg);
+        df3.write().mode(SaveMode.Overwrite).format("json").save(arg);
     }
 
     private static void averageWord(String arg) {
         DataFrame averageWord = hsqlContext.sql("SELECT user_location, avg(t.len) FROM (SELECT user_location, length(text) AS len FROM twitter) AS t GROUP BY user_location");
         averageWord.show();
-        averageWord.write().save(arg);
+        averageWord.write().mode(SaveMode.Overwrite).format("json").save(arg);
     }
 
     private static void countByTime2(String[] args, TwitterHandler twitterHandler) {
         DataFrame dataFrame2 = twitterHandler.selectAll();
         DataFrame dfBetween = dataFrame2.filter(new Column("created_at").between(Utils.dateString2long(args[1]), Utils.dateString2long(args[2])));
         dfBetween.show();
-        dfBetween.write().mode(SaveMode.Overwrite).save(args[3]);
+        dfBetween.write().mode(SaveMode.Overwrite).format("json").save(args[3]);
     }
 
     private static void countByTime(String[] args) {
         long timeStart = Utils.dateString2long(args[1]);
         long timeEnd = Utils.dateString2long(args[2]);
         DataFrame countByTime = hsqlContext.sql("SELECT count(*) FROM twitter  WHERE created_at >= '" + timeStart + "' AND created_at <= '" + timeEnd + "'");
-        countByTime.write().mode(SaveMode.Overwrite).save(args[3]);
+        countByTime.write().mode(SaveMode.Overwrite).format("json").save(args[3]);
     }
 
     private static void selectAll(String arg, TwitterHandler twitterHandler) {
         DataFrame dataFrame = twitterHandler.selectAll();
         dataFrame.show();
-        dataFrame.write().mode(SaveMode.Overwrite).save(arg);
+        dataFrame.write().mode(SaveMode.Overwrite).format("json").save(arg);
         System.out.println(dataFrame.count());
     }
 
