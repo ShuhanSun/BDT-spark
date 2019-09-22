@@ -9,14 +9,15 @@ import java.util.Objects;
 
 public class Utils {
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy");
+    private static final SimpleDateFormat DATE_FORMAT_TO = new SimpleDateFormat("yyyyMMdd:HH:mm:ss");
 
-    public static long dateString2long(String date) {
+    public static String dateString2long(String date) {
         try {
-            return DATE_FORMAT.parse(date).toInstant().toEpochMilli();
+            return DATE_FORMAT_TO.format(DATE_FORMAT.parse(date));
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        return 0;
+        return null;
     }
 
     public static String twitterJson2String(String json) {

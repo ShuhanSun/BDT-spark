@@ -10,7 +10,9 @@ spark-submit \
   --executor-memory 20G \
   --total-executor-cores 100 \
 ./spark-project-1.0-SNAPSHOT.jar \
-  selectAll /user/cloudera/spark-sql-output/selectAll
+countByTime2 "Thu Sep 19 02:36:10 +0000 2019" "Thu Sep 19 20:47:28 +0000 2019" "/user/cloudera/spark-sql-output/countByTime2"
+
+averageWord "/user/cloudera/spark-sql-output/averageWord"
 
 
 # /Users/sunshuhan/Documents/mum/course/BDT/BDT-spark/SparkSqlProject/target/spark-project-1.0-SNAPSHOT.jar \
@@ -18,6 +20,6 @@ spark-submit \
 # loadData
 # selectAll
 # countByTime "Thu Sep 19 02:36:10 +0000 2019" "Thu Sep 19 19:47:28 +0000 2019"
-# countByTime2 "Thu Sep 19 02:36:10 +0000 2019" "Thu Sep 19 20:47:28 +0000 2019"
+# countByTime2 "Thu Sep 19 02:36:10 +0000 2019" "Thu Sep 19 20:47:28 +0000 2019" "/user/cloudera/spark-sql-output/countByTime2"
 # averageWord
 # maxTwittes
