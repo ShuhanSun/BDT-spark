@@ -75,15 +75,14 @@ public class KafkaToStreaming {
 
 		SparkConf conf = new SparkConf()
 				.setAppName("kafka-sandbox")
-				.setMaster(
-				 "local[*]")
+				//.setMaster("local[*]")
 				//	"spark://127.0.0.1:33020")
 				//.setJars(
 				//		new String[] { "/home/cloudera/bdtproject/BDT-spark/TwitterDS/spark-streaming-kafka-0-10_2.11/target/spark-streaming-kafka-0-10_2.11-0.0.1-SNAPSHOT.jar" })
 						;
 		JavaSparkContext sc = new JavaSparkContext(conf);
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(
-				30000));
+				15000));
 
 		// create Hive
 		twitterHandler = new SparkSQLUtility(sc);
@@ -170,7 +169,7 @@ public class KafkaToStreaming {
 			while (true) {
 				
 				try {
-					String content = Func(false, "",1 * 1024);
+					String content = Func(false, "",64 * 1024);
 
 					// if (content.length() > 1024 * 1024){
 					// filename =
