@@ -23,7 +23,7 @@ public class SparkSQLUtility {
     public void createTable() {
         hsqlContext.sql("CREATE TABLE IF NOT EXISTS twitter " +
                 "(id_str String, " +
-                "created_at BIGINT, " +
+                "created_at String, " +
                 "favorite_count INT, " +
                 "user_id String, " +
                 "user_name String, " +
