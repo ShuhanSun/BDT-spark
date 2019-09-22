@@ -15,10 +15,10 @@ public class HiveJDBC {
 	public static void main(String[] args) throws SQLException {
 		String filepath = "/user/cloudera/output/-1569009990000.seq/part-00000";
 		String tableName = "twitter";
-		HiveJDBC.loadData(tableName ,filepath);
+		HiveJDBC.loadDataDepracated(tableName ,filepath);
 	}
 	
-	public static void loadData(String tableName, String filepath) throws SQLException{
+	public static void loadDataDepracated(String tableName, String filepath) throws SQLException{
 		try {
 			Class.forName(driverName);
 		} catch (ClassNotFoundException e) {

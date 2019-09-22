@@ -49,8 +49,6 @@ import org.apache.spark.api.java.function.FlatMapFunction;
 //import org.apache.spark.sql.streaming.StreamingQuery;
 
 
-import java.util.Arrays;
-import java.util.Iterator;
 
 public class KafkaToStreaming {
 
@@ -109,7 +107,7 @@ public class KafkaToStreaming {
 				 rdd.foreach(record -> {
 				 String one = record._2;
 				 Func(true,one,0);
-				 System.out.println(one);
+				 //System.out.println(one);
 				
 				 });
 
@@ -172,7 +170,7 @@ public class KafkaToStreaming {
 			while (true) {
 				
 				try {
-					String content = Func(false, "",8 * 1024);
+					String content = Func(false, "",1 * 1024);
 
 					// if (content.length() > 1024 * 1024){
 					// filename =
@@ -186,10 +184,11 @@ public class KafkaToStreaming {
 								+ String.valueOf(System.currentTimeMillis())
 								+ ".txt";
 						KafkaToStreaming.createAppendHDFS(filename, content);
-						HiveJDBC.loadData("twitter",filename);
+						twitterHandler.loadData(filename);
+						//HiveJDBC.loadData("twitter",filename);
 					}
 
-				} catch (IOException | SQLException e) {
+				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
