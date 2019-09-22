@@ -102,14 +102,21 @@ public class KafkaToStreaming {
 			// rdd.saveAsHadoopFile("a", Text.class,BytesWritable.class,KafkaStreamSeqOutputFormat.class);
 			// rdd.coalesce(1, true);
 			// rdd.repartition(1);
-				
+
+			 StringBuffer thiscache = new StringBuffer();
 				 rdd.foreach(record -> {
 				 String one = record._2;
-				 Func(true,one,0);
+				 thiscache.append(Utils.twitterJson2String(one) + "\r\n");
+				 //Func(true,one,0);
 				 //System.out.println(one);
 				
 				 });
-
+				 String filename = "/user/cloudera/output/part-"
+							+ String.valueOf(System.currentTimeMillis())
+							+ ".txt";
+					KafkaToStreaming.createAppendHDFS(filename, thiscache.toString());
+					twitterHandler.loadData(filename);
+					System.out.println("--- save to file: " + filename +" and load to table.--");
 			});
 
 		// directKafkaStream.transform(transformFunc)
@@ -139,7 +146,7 @@ public class KafkaToStreaming {
 //				.saveAsTextFiles("hdfs://localhost/user/cloudera/output/twitter",
 //						suffix);
 		
-		(new Thread(merge)).start();
+		//(new Thread(merge)).start();
 		ssc.start();
 		ssc.awaitTermination();
 	}
@@ -169,7 +176,7 @@ public class KafkaToStreaming {
 			while (true) {
 				
 				try {
-					String content = Func(false, "",64 * 1024);
+					String content = Func(false, "",1);
 
 					// if (content.length() > 1024 * 1024){
 					// filename =
