@@ -15,10 +15,10 @@ public class HiveJDBC {
 	public static void main(String[] args) throws SQLException {
 		String filepath = "/user/cloudera/output/-1569009990000.seq/part-00000";
 		String tableName = "twitter";
-		HiveJDBC.loadData(tableName ,filepath);
+		HiveJDBC.loadDataDepracated(tableName ,filepath);
 	}
 	
-	public static void loadData(String tableName, String filepath) throws SQLException{
+	public static void loadDataDepracated(String tableName, String filepath) throws SQLException{
 		try {
 			Class.forName(driverName);
 		} catch (ClassNotFoundException e) {
@@ -80,9 +80,10 @@ public class HiveJDBC {
 	}
 	
     public static String getcreateExternalTable(String tableName) {
-       return ("CREATE EXTERNAL TABLE IF NOT EXISTS " + tableName +" "+
+    	return ("CREATE TABLE IF NOT EXISTS twitter " +
                 "(id_str String, " +
-                "created_at String, " +
+                "created_at BIGINT, " +
+                "favorite_count INT, " +
                 "user_id String, " +
                 "user_name String, " +
                 "user_location String, " +

@@ -1,16 +1,24 @@
 package org.apache.spark.spark_streaming_kafka_0_10_2;
-
 import bean.Twitter;
-
 import com.alibaba.fastjson.JSONArray;
 
 import java.io.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
 
 public class Utils {
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy");
+
+    public static long dateString2long(String date) {
+        try {
+            return DATE_FORMAT.parse(date).toInstant().toEpochMilli();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 
     public static String twitterJson2String(String json) {
         if (json == null) {
@@ -33,13 +41,13 @@ public class Utils {
         }
         sb.append(twitter.getId_str());
         sb.append(";");
-        Date parse = null;
         try {
-            parse = DATE_FORMAT.parse(twitter.getCreated_at());
-            sb.append(parse.getTime());
+            sb.append(dateString2long(twitter.getCreated_at()));
         } catch (Exception e) {
             e.printStackTrace();
         }
+        sb.append(";");
+        sb.append(twitter.getFavorite_count());
         sb.append(";");
         if (twitter.getUser() == null) {
             return null;
@@ -50,7 +58,8 @@ public class Utils {
         sb.append(";");
         sb.append(twitter.getUser().getLocation());
         sb.append(";");
-        sb.append(twitter.getText().replaceAll("\n", " ").replaceAll(";", "."));
+        String s = twitter.getText().replaceAll("\n", " ").replaceAll(";", ".");
+        sb.append(s);
 
         return sb.toString();
     }

@@ -3,11 +3,12 @@ package bean;
 import java.io.Serializable;
 
 public class Twitter implements Serializable {
-    private String created_at;
     private String id_str;
-    private String text;
+    private String created_at;
 //    private String place;
+private int favorite_count;
     private User user;
+    private String text;
     private Entities entities;
 
     public String getCreated_at() {
@@ -50,6 +51,14 @@ public class Twitter implements Serializable {
         this.entities = entities;
     }
 
+    public int getFavorite_count() {
+        return favorite_count;
+    }
+
+    public void setFavorite_count(int favorite_count) {
+        this.favorite_count = favorite_count;
+    }
+
     @Override
     public String toString() {
         return "Twitter{" +
@@ -58,6 +67,7 @@ public class Twitter implements Serializable {
                 ", text='" + text + '\'' +
                 ", user=" + user +
                 ", entities=" + entities +
+                ", favorite_count=" + favorite_count +
                 '}';
     }
 }

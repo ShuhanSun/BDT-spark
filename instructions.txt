@@ -1,0 +1,16 @@
+
+hive> select * from twitter limit 10;
+OK
+1175037350386249728	1568985710000	19084896	Rick Wilson	Florida and points beyond	Trump calls the whistleblower "highly partisan."  I have questions.   Who, precisely, told Trump about the identity& https://t.co/OClD6MEGed
+1174847493634441216	1568940444000	548384458	Joyce Alene	Alabama	If this turns out to be what the whistleblower complaint is about &amp. itIs accurate, Trump must leave office immediat& https://t.co/ruUqhVyezb
+		1174797955381022731	1568928633000	2800581040	Bill Kristol		If the whistleblower complaint is seriousas the IG seems to thinkit wonTt be Trump being careless or reckless on& https://t.co/efLRTUyp4z
+1175193633173245952	1569022970000	350466492	Amer4Solutions		RT @EvanMcMullin: We're witnessing the normalization presidential corruption that threatens the Republic. Having not been held accountable&
+1175193632766398465	1569022970000	889407936	John	Minnesota, USA	RT @SenWhitehouse: West Wing creator Aaron Sorkin: "Werre living in a world of just crude politics, corruption in plain sight, out-and-out&
+1175193632636145664	1569022970000	1162193965698838534	jgig2025		@SpeakerPelosi This is disgraceful convenient politics. The least you should all be doing is, painting Trump as cor& https://t.co/yiHCQN1OCb
+1175193632606801922	1569022970000	35709217	EastSeaNews		RT @vinhlhq2015: Trump is serious about US divorce from China: The rest of the world will be pressured to make a choice between Washington&
+1175193632468602880	1569022970000	159830245	Cathy Favorite	Columbus, OH	RT @JoeBiden: If these reports are true, then there is truly no bottom to President Trumpss willingness to abuse his power and abase our co&
+1175193632460156929	1569022970000	259939438	@RHJenks	The Commonwealth of Kentucky	RT @TrumpWarRoom: the Ukrainian Embassy in Washington says a Democratic National Committee (DNC) insider during the 2016 election solicite&
+1175193632418226177	1569022970000	785943761163472896	united personnel	United States	Trump will send troops to Middle East in response to attack on Saudi Arabia https://t.co/vj4dCvImgQ via @usatoday
+Time taken: 1.006 seconds, Fetched: 10 row(s)
+hive> describe twitter;
+
