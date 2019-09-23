@@ -48,8 +48,6 @@ import org.apache.spark.api.java.function.FlatMapFunction;
 //import org.apache.spark.sql.*;
 //import org.apache.spark.sql.streaming.StreamingQuery;
 
-
-
 public class KafkaToStreaming {
 
 	private static StringBuffer cache = new StringBuffer();
@@ -73,13 +71,14 @@ public class KafkaToStreaming {
 
 	public static void test() {
 
-		SparkConf conf = new SparkConf()
-				.setAppName("kafka-sandbox")
-				//.setMaster("local[*]")
-				//	"spark://127.0.0.1:33020")
-				//.setJars(
-				//		new String[] { "/home/cloudera/bdtproject/BDT-spark/TwitterDS/spark-streaming-kafka-0-10_2.11/target/spark-streaming-kafka-0-10_2.11-0.0.1-SNAPSHOT.jar" })
-						;
+		SparkConf conf = new SparkConf().setAppName("kafka-sandbox")
+		// .setMaster("local[*]")
+		// "spark://127.0.0.1:33020")
+		// .setJars(
+		// new String[] {
+		// "/home/cloudera/bdtproject/BDT-spark/TwitterDS/spark-streaming-kafka-0-10_2.11/target/spark-streaming-kafka-0-10_2.11-0.0.1-SNAPSHOT.jar"
+		// })
+		;
 		JavaSparkContext sc = new JavaSparkContext(conf);
 		JavaStreamingContext ssc = new JavaStreamingContext(sc, new Duration(
 				15000));
@@ -99,65 +98,71 @@ public class KafkaToStreaming {
 		directKafkaStream.foreachRDD(rdd -> {
 			System.out.println("--- New RDD with " + rdd.partitions().size()
 					+ " partitions and " + rdd.count() + " records");
-			// rdd.saveAsHadoopFile("a", Text.class,BytesWritable.class,KafkaStreamSeqOutputFormat.class);
+			// rdd.saveAsHadoopFile("a",
+			// Text.class,BytesWritable.class,KafkaStreamSeqOutputFormat.class);
 			// rdd.coalesce(1, true);
 			// rdd.repartition(1);
 
-			 StringBuffer thiscache = new StringBuffer();
-				 rdd.foreach(record -> {
-				 String one = record._2;
-				 thiscache.append(Utils.twitterJson2String(one) + "\r\n");
-				 //Func(true,one,0);
-				 //System.out.println(one);
-				
-				 });
-				 String filename = "/user/cloudera/output/part-"
-							+ String.valueOf(System.currentTimeMillis())
-							+ ".txt";
-					KafkaToStreaming.createAppendHDFS(filename, thiscache.toString());
-					twitterHandler.loadData(filename);
-					System.out.println("--- save to file: " + filename +" and load to table.--");
+				StringBuffer thiscache = new StringBuffer();
+				rdd.foreach(record -> {
+					String one = record._2;
+					// Func(true,one,0);
+					// System.out.println(one);
+
+				});
+				for (Tuple2<String, String> r : rdd.collect()) {
+					thiscache.append(Utils.twitterJson2String(r._2) + "\r\n");
+				}
+				String filename = "/user/cloudera/output/part-"
+						+ String.valueOf(System.currentTimeMillis()) + ".txt";
+				KafkaToStreaming.createAppendHDFS(filename,
+						thiscache.toString());
+				twitterHandler.loadData(filename);
+				System.out.println("--- save to file: " + filename
+						+ " and load to table.--");
 			});
 
 		// directKafkaStream.transform(transformFunc)
 		// directKafkaStream.saveAsHadoopFiles("twitter", "seq",
 		// Text.class,BytesWritable.class, KafkaStreamSeqOutputFormat.class);
 
-//		JavaDStream<String> valueDStream = directKafkaStream
-//				.map(new Function<Tuple2<String, String>, String>() {
-//					/**
-//			 * 
-//			 */
-//					private static final long serialVersionUID = 5905913587447035735L;
-//
-//					public String call(Tuple2<String, String> v1)
-//							throws Exception {
-//						// Func(true,v1._2);
-//
-//						return v1._2();
-//					}
-//				});
-//		valueDStream.count().print();
-//		String suffix = "seq";
-//
-//		valueDStream
-//				.dstream()
-//				.repartition(1)
-//				.saveAsTextFiles("hdfs://localhost/user/cloudera/output/twitter",
-//						suffix);
-		
-		//(new Thread(merge)).start();
+		// JavaDStream<String> valueDStream = directKafkaStream
+		// .map(new Function<Tuple2<String, String>, String>() {
+		// /**
+		// *
+		// */
+		// private static final long serialVersionUID = 5905913587447035735L;
+		//
+		// public String call(Tuple2<String, String> v1)
+		// throws Exception {
+		// // Func(true,v1._2);
+		//
+		// return v1._2();
+		// }
+		// });
+		// valueDStream.count().print();
+		// String suffix = "seq";
+		//
+		// valueDStream
+		// .dstream()
+		// .repartition(1)
+		// .saveAsTextFiles("hdfs://localhost/user/cloudera/output/twitter",
+		// suffix);
+
+		// (new Thread(merge)).start();
 		ssc.start();
 		ssc.awaitTermination();
 	}
 
-	public static synchronized String Func(boolean isappend, String appendstring, int size) {
+	public static synchronized String Func(boolean isappend,
+			String appendstring, int size) {
 		if (isappend) {
-			KafkaToStreaming.cache.append(Utils.twitterJson2String(appendstring) + "\r\n");
+			KafkaToStreaming.cache.append(Utils
+					.twitterJson2String(appendstring) + "\r\n");
 		} else {
 
 			String tmp = cache.toString();
-			if (tmp.length() < size){
+			if (tmp.length() < size) {
 				return "";
 			}
 			cache = new StringBuffer();
@@ -174,16 +179,17 @@ public class KafkaToStreaming {
 		public void run() {
 
 			while (true) {
-				
+
 				try {
-					String content = Func(false, "",1);
+					String content = Func(false, "", 1);
 
 					// if (content.length() > 1024 * 1024){
 					// filename =
 					// "/user/cloudera/output/part-"+String.valueOf(System.currentTimeMillis())+".txt";
 					// }
-					System.out
-					.println("---------------------"+content.length()+"------"+cache.length()+"---------------------");
+					System.out.println("---------------------"
+							+ content.length() + "------" + cache.length()
+							+ "---------------------");
 					if (content.length() > 1) {
 
 						filename = "/user/cloudera/output/part-"
@@ -191,7 +197,7 @@ public class KafkaToStreaming {
 								+ ".txt";
 						KafkaToStreaming.createAppendHDFS(filename, content);
 						twitterHandler.loadData(filename);
-						//HiveJDBC.loadData("twitter",filename);
+						// HiveJDBC.loadData("twitter",filename);
 					}
 
 				} catch (IOException e) {
